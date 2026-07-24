@@ -4,3 +4,4 @@ panda_data>=0.0.12
 a2a-sdk==0.2.16
 uvicorn>=0.30
 starlette>=0.37
+injective-py>=1.16.0
