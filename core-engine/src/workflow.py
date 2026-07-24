@@ -12,7 +12,7 @@
 """
 from __future__ import annotations
 
-from . import compliance
+from . import advisor, compliance, notary
 from .agents import report as report_agent
 from .agents import strategy_quant
 from .quant import backtest as bt_mod
@@ -123,6 +123,27 @@ def research_workflow(query: str, risk_level: str = "balanced") -> dict:
     report_text = compliance.ensure_disclaimer(report_text)
     step("Report", "汇总为可解释投研报告(含风险提示)", {"chars": len(report_text)})
 
+    # 7) Advisor Agent —— 签文与大白话建议(纯规则)
+    advice = advisor.to_advice(
+        {"backtest": final_bt, "benchmark": benchmark_result, "risk": risk_result, "beatBenchmark": beat}
+    )
+    step("Advisor", "生成签文与大白话建议(纯规则,不调用 LLM)", advice)
+
+    # 8) Notary Agent —— 签文哈希锚定 Injective 测试网
+    onchain_payload = {
+        "query": query,
+        "riskLevel": risk_level,
+        "advice": advice,
+        "report": report_text,
+        "backtest": final_bt,
+        "disclaimer": compliance.RISK_DISCLAIMER,
+    }
+    onchain = notary.anchor(onchain_payload)
+    if onchain.get("ok"):
+        step("Notary", "签文哈希锚定 Injective 测试网", {"txHash": onchain["txHash"]})
+    else:
+        step("Notary", "上链存证失败(不影响本次分析结果)", {"reason": onchain.get("reason")})
+
     return {
         "type": "multi_agent_research",
         "query": query,
@@ -137,6 +158,8 @@ def research_workflow(query: str, risk_level: str = "balanced") -> dict:
         "risk": risk_result,
         "iterations": iterations,
         "report": report_text,
+        "advice": advice,
+        "onchain": onchain,
         "trace": trace,
         "sources": ["panda_data:0.0.12", "self-computed-backtest", "multi-agent-workflow"],
         "disclaimer": compliance.RISK_DISCLAIMER,
