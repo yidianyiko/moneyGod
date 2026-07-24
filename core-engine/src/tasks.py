@@ -91,10 +91,18 @@ def _render_backtest(bt: dict, bench: dict, beat: bool, iters: int) -> str:
     return "\n".join(lines)
 
 
+def _render_fortune(adv: dict) -> str:
+    return (
+        f"🧧 今日签文:{adv.get('actionHintCn', '')} · {adv.get('signature', '')}\n"
+        f"{adv.get('plainAdvice', '')}"
+    )
+
+
 def _render_workflow(r: dict) -> str:
     params = r.get("strategyParams", {})
     sections = [
         f"财神 MoneyGod · 多 Agent 量化投研\n任务:{r.get('query', '').strip()}",
+        _render_fortune(r.get("advice") or {}),
         _render_trace(r.get("trace", [])),
         "🔬 因子排名(横截面多因子打分):" + " > ".join(r.get("factor", {}).get("ranking", [])),
         f"🧭 最终策略参数:因子权重 {params.get('weights')} | 持仓数 {params.get('top_k')} | "
@@ -137,9 +145,11 @@ def handle_task(text: str, profile: UserProfile | None = None) -> str:
     try:
         targets = extract_targets(text)
         if _wants_workflow(text, targets):
+            from . import advisor
             from .workflow import research_workflow
 
             result = research_workflow(text, risk_level=profile.riskLevel)
+            result["advice"] = advisor.to_advice(result)
             return _render_workflow(result)  # 报告内已含风险提示
         body = _answer_qa(text)
     except Exception as e:  # noqa: BLE001 顶层兜底,保证 A2A 始终有响应
@@ -169,9 +179,12 @@ def analyze_structured(text: str, profile: UserProfile | None = None) -> dict:
     try:
         targets = extract_targets(text)
         if _wants_workflow(text, targets):
+            from . import advisor
             from .workflow import research_workflow
 
-            return research_workflow(text, risk_level=riskLevel)
+            result = research_workflow(text, risk_level=riskLevel)
+            result["advice"] = advisor.to_advice(result)
+            return result
         # 无标的且非策略意图:市场问答
         market = data_adapter.get_market_overview()
         prompt = (

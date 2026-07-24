@@ -209,8 +209,19 @@ function lineChart(series, w=560, h=140){
 function num(v, p=2){ return (v==null)?'-':(v*100).toFixed(p)+'%'; }
 function raw(v, p=2){ return (v==null)?'-':Number(v).toFixed(p); }
 
+function fortuneCard(adv){
+  const c = el('div','card fortune');
+  c.innerHTML = `<div class="lvl">今 日 · ${esc(adv.actionHintCn||'宜观')}</div>
+    <div class="sen" style="font-size:16px;font-weight:700;margin-top:6px">${esc(adv.signature||'')}</div>
+    <div class="sen">${esc(adv.plainAdvice||'')}</div>`;
+  return c;
+}
+
 function renderWorkflow(data){
   const box = $('#result');
+
+  // 0) 签文（先给用户看仪式感结论，细节往下翻）
+  box.appendChild(fortuneCard(data.advice||{}));
 
   // 1) 多 Agent 协作轨迹
   const trace = data.trace||[];
