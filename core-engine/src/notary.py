@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import time
+from decimal import Decimal
 
 from pyinjective.async_client_v2 import AsyncClient
 from pyinjective.composer_v2 import Composer
@@ -74,7 +75,9 @@ async def _broadcast_memo(memo: str) -> str:
     transaction.with_chain_id(network.chain_id)
     transaction.with_memo(memo)
 
-    fee_calculator = SimulatedTransactionFeeCalculator(client=client, composer=composer)
+    fee_calculator = SimulatedTransactionFeeCalculator(
+        client=client, composer=composer, gas_limit_adjustment_multiplier=Decimal("1.4")
+    )
     await fee_calculator.configure_gas_fee_for_transaction(
         transaction=transaction, private_key=priv_key, public_key=pub_key
     )
