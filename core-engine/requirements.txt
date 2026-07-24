@@ -1,0 +1,6 @@
+openai>=1.40.0
+python-dotenv>=1.0.0
+panda_data>=0.0.12
+a2a-sdk==0.2.16
+uvicorn>=0.30
+starlette>=0.37
