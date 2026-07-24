@@ -217,11 +217,26 @@ function fortuneCard(adv){
   return c;
 }
 
+function onchainCard(onchain){
+  const c = el('div','card');
+  if(onchain && onchain.ok){
+    c.innerHTML = `<h2>⛓️ 链上存证</h2>
+      <div>已锚定 Injective 测试网,交易哈希:
+        <a href="${esc(onchain.explorerUrl)}" target="_blank" rel="noopener">${esc(onchain.txHash)}</a>
+      </div>`;
+  } else {
+    c.innerHTML = `<h2>⛓️ 链上存证</h2>
+      <div class="muted">本次未能上链存证,不影响分析结果${onchain && onchain.reason ? '('+esc(onchain.reason)+')' : ''}</div>`;
+  }
+  return c;
+}
+
 function renderWorkflow(data){
   const box = $('#result');
 
   // 0) 签文（先给用户看仪式感结论，细节往下翻）
   box.appendChild(fortuneCard(data.advice||{}));
+  box.appendChild(onchainCard(data.onchain));
 
   // 1) 多 Agent 协作轨迹
   const trace = data.trace||[];
