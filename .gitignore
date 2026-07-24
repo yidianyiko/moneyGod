@@ -19,6 +19,8 @@ node_modules/
 .qoder/
 .vscode/
 .idea/
+.claude/
+.ainj/
 
 # ---- os ----
 .DS_Store
