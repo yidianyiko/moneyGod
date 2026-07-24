@@ -9,7 +9,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import time
 from decimal import Decimal
 
 from pyinjective.async_client_v2 import AsyncClient
@@ -58,54 +57,62 @@ async def _broadcast_memo(memo: str) -> str:
     """构建、签名、广播一笔带 memo 的自转账 MsgSend,返回 txhash。"""
     network = Network.testnet()
     client = AsyncClient(network=network)
-    priv_key = _get_private_key()
-    pub_key = priv_key.to_public_key()
-    address = pub_key.to_address().to_acc_bech32()
+    try:
+        priv_key = _get_private_key()
+        pub_key = priv_key.to_public_key()
+        address = pub_key.to_address().to_acc_bech32()
 
-    await client.sync_timeout_height()
-    await client.fetch_account(address)
+        await client.sync_timeout_height()
+        await client.fetch_account(address)
 
-    composer = Composer(network=network.string())
-    msg = composer.msg_send(from_address=address, to_address=address, amount=1, denom="inj")
+        composer = Composer(network=network.string())
+        msg = composer.msg_send(from_address=address, to_address=address, amount=1, denom="inj")
 
-    transaction = Transaction()
-    transaction.with_messages(msg)
-    transaction.with_sequence(client.get_sequence())
-    transaction.with_account_num(client.get_number())
-    transaction.with_chain_id(network.chain_id)
-    transaction.with_memo(memo)
+        transaction = Transaction()
+        transaction.with_messages(msg)
+        transaction.with_sequence(client.get_sequence())
+        transaction.with_account_num(client.get_number())
+        transaction.with_chain_id(network.chain_id)
+        transaction.with_memo(memo)
 
-    fee_calculator = SimulatedTransactionFeeCalculator(
-        client=client, composer=composer, gas_limit_adjustment_multiplier=Decimal("1.4")
-    )
-    await fee_calculator.configure_gas_fee_for_transaction(
-        transaction=transaction, private_key=priv_key, public_key=pub_key
-    )
+        fee_calculator = SimulatedTransactionFeeCalculator(
+            client=client, composer=composer, gas_limit_adjustment_multiplier=Decimal("1.4")
+        )
+        await fee_calculator.configure_gas_fee_for_transaction(
+            transaction=transaction, private_key=priv_key, public_key=pub_key
+        )
 
-    sign_doc = transaction.get_sign_doc(pub_key)
-    signature = priv_key.sign(sign_doc.SerializeToString())
-    tx_bytes = transaction.get_tx_data(signature, pub_key)
+        sign_doc = transaction.get_sign_doc(pub_key)
+        signature = priv_key.sign(sign_doc.SerializeToString())
+        tx_bytes = transaction.get_tx_data(signature, pub_key)
 
-    result = await client.broadcast_tx_sync_mode(tx_bytes)
-    tx_response = result.get("txResponse", {})
-    code = tx_response.get("code", 0)
-    if code:
-        raise RuntimeError(f"广播失败,code={code}: {tx_response.get('rawLog', '')[:200]}")
-    return tx_response["txhash"]
+        result = await client.broadcast_tx_sync_mode(tx_bytes)
+        tx_response = result.get("txResponse", {})
+        code = tx_response.get("code", 0)
+        if code:
+            raise RuntimeError(f"广播失败,code={code}: {tx_response.get('rawLog', '')[:200]}")
+        return tx_response["txhash"]
+    finally:
+        # AsyncClient opens a chain gRPC channel (and a background timeout-height
+        # sync task) in __init__; this code path only ever talks over that channel,
+        # so close it here to avoid leaking channels/tasks across anchor() calls
+        # on a long-running server.
+        await client.close_chain_channel()
 
 
 def anchor(result: dict) -> dict:
     """把 result 的关键字段哈希锚定到 Injective 测试网。任何失败都不抛出。"""
     import asyncio
 
-    payload = _canonical_payload(result)
-    content_hash = _hash_payload(payload)
-    memo = f"{MEMO_PREFIX}{content_hash}"
-
+    content_hash = ""
     try:
+        payload = _canonical_payload(result)
+        content_hash = _hash_payload(payload)
+        memo = f"{MEMO_PREFIX}{content_hash}"
         tx_hash = asyncio.run(asyncio.wait_for(_broadcast_memo(memo), timeout=_BROADCAST_TIMEOUT_SECONDS))
     except Exception as e:  # noqa: BLE001 链上存证失败不能影响主流程
-        return {"ok": False, "reason": str(e)[:200], "hash": content_hash}
+        reason = str(e) or type(e).__name__
+        return {"ok": False, "reason": reason[:200], "hash": content_hash}
 
     return {
         "ok": True,
