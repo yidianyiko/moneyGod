@@ -28,3 +28,8 @@ spectrum/.subscribers.json
 
 # ---- superpowers scratch ----
 .superpowers/
+
+# ---- platformio local toolchain (stick-dev) ----
+stick-dev/.pio_core/
+stick-dev/.pio-core/
+stick-dev/.pio-venv/
