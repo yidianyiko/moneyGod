@@ -1,7 +1,10 @@
-# StickS3 摇签遥控器设计（BLE 广播联动）
+# StickS3 摇签遥控器设计（BLE 广播联动 · Stick 侧）
 
 日期：2026-07-25
 状态：已确认（用户批准方案 A：无连接 BLE 广播）
+范围修订：本 spec 只覆盖 **BLE 广播协议 + StickS3 固件**。T5AI 侧集成因 cyber-fortune-v2
+（`2026-07-25-cyber-fortune-v2-design.md`）正在实施中，拆分至独立 spec
+`2026-07-25-t5-ble-remote-design.md`，v2 落地后单独排期实现。Stick 固件与 T5 代码零交集，可并行开发。
 
 ## 背景与目标
 
@@ -59,23 +62,21 @@ StickS3 检测到摇动后，将事件写入 BLE 广播包的 **Manufacturer Spe
 `ARDUINO_USB_CDC_ON_BOOT=1`），依赖 M5Unified + M5PM1。
 
 - **摇动检测**：BMI270 加速度模长阈值（约 2g）+ 短窗口内多峰判定；触发后 **2 秒冷却**防连触。
-- **本地仪式感**（不依赖回传）：待机显示像素风"签筒"画面；摇动瞬间播放音效 + 切"求签中…"动画，约 1.5 秒后回待机；显示电量。
+- **本地仪式感**（不依赖回传，已确认：GIF 动画 + 音效，**不做震动**——StickS3 无内置震动马达）：
+  - 屏幕旋转为横屏 **240×135**，与现有素材同比例（3:2）；
+  - 待机循环播放 `scene_change_gifs/thinking.gif`（480×320 → 离线缩放到 240×135、降帧降色减体积）；
+  - 摇动触发：播放摇签音效（WAV，M5Unified Speaker API）+ 播一遍 `getting_lottery.gif`，结束回待机；
+  - GIF 用 `AnimatedGIF` 解码库 + M5GFX 渲染，素材以 C 数组形式编进固件（8MB Flash 富余）；
+  - 屏幕角落叠加电量百分比；
+  - ⚠️ 电池供电时音量上限 75%（官方警告：过大功率会触发重启）。
 - **BLE**：ESP32 Arduino BLEAdvertising API 动态设置厂商数据、启停广播。
 - **供电**：展会默认 USB/充电宝供电，250mAh 电池仅作短时移动缓冲。
 - 配套脚本：`cf_stick_build.sh` / `cf_stick_flash.sh`（含 `pio device monitor` 提示），与现有 `cf_*` 工作流一致。
 
-## 3. T5AI 侧改动（`apps/cyber_fortune`）
+## 3. T5AI 侧改动（已拆分，另行实施）
 
-- 新增 `fortune_ble_remote.c/h`（约 150 行）：
-  - `tal_ble_bt_init(TAL_BLE_ROLE_CENTRAL, cb)` + 常驻扫描（参考 `examples/ble/ble_central`）。
-  - 扫描回调（非 LVGL 线程）：过滤魔数 → 校验事件类型/序号 → 置 `volatile` 触发标志。
-- **线程安全**：`fortune_ui.c` 增加 **100ms LVGL 轮询 timer** 消费标志位；所有 UI 变更仍在 LVGL 线程内，零跨线程调用。
-- `fortune_ui.c` 新增公开函数 `fortune_ui_trigger_draw()`（全局响应语义）：
-  - 待机页 → 等价点击求签按钮；
-  - 结果页 → 回待机并立即开始求签；
-  - `s_drawing` 为真时忽略。
-- `tuya_main.c`：UI 初始化完成后调用 `fortune_ble_remote_init()`；初始化失败仅打日志，触屏流程不受影响。
-- `app_default.config`：启用蓝牙相关配置项（具体 Kconfig 符号实施时确认）。
+详见 `2026-07-25-t5-ble-remote-design.md`。本 spec 的第 1 节协议即双方共享契约，
+T5 侧实现时以此为准，协议字段不得单方变更。
 
 ## 4. 容错与边界
 
@@ -87,15 +88,18 @@ StickS3 检测到摇动后，将事件写入 BLE 广播包的 **Manufacturer Spe
 | T5 BLE 初始化失败 | 打日志降级，主流程不受影响 |
 | 展会 2.4G 干扰 | 1.5s × 50ms 广播连发冗余抗丢包 |
 
-## 5. 测试计划
+## 5. 测试计划（本期只测 Stick 侧）
 
-1. **Stick 单侧**：串口日志验证摇动检测灵敏度与冷却；手机 nRF Connect 抓广播包核对协议字段。
-2. **T5 单侧**：monitor 日志确认扫描、魔数过滤、序号去重。
-3. **端到端**：摇 Stick → 大屏出签 → 打印机出票；结果页摇动 → 重新求签。
-4. **鲁棒性**：冷却周期内连摇 10 次仅出 1 签；Stick 拔电重启后无需任何操作继续可用。
+1. **摇动检测**：串口日志验证灵敏度与 2s 冷却；冷却周期内连摇 10 次仅触发 1 次。
+2. **广播协议**：手机 nRF Connect 抓广播包，核对厂商数据各字段与序号递增；1.5s 后广播确实停止。
+3. **本地反馈**：待机 GIF 循环流畅；摇动后音效 + getting_lottery 动画播放完整并回待机；电量显示正确。
+4. **供电**：电池供电下音量 75% 播放不重启；拔电重启后无需任何操作恢复工作。
+
+端到端联动测试（摇 Stick → 大屏出签 → 打印出票）归入 T5 侧 spec，待其实现后进行。
 
 ## 假设
 
 - StickS3 到手后 BMI270 阈值需实测微调（阈值/峰数作为固件顶部常量便于调参）。
-- T5AI 的 BLE 与现有 WiFi/后端请求共存无冲突（TuyaOpen 常规能力，实施时验证）。
 - 展会现场只有一支 Stick 与一块 T5AI 板，协议暂不做设备配对绑定；如未来多套并存，可在厂商数据中追加设备 ID 字段过滤。
+- GIF 素材缩放到 240×135 并降帧后单个体积可控制在数百 KB 内，8MB Flash 足够容纳 2 个动画 + 音效 WAV（实施时如超限改用 LittleFS 分区存储）。
+- 震动反馈不做：StickS3 无内置震动马达；Grove 口（G9/G10 + 5V，需开 EXT_5V 输出）保留为未来外接震动马达模块的升级路径。
