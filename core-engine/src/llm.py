@@ -34,17 +34,24 @@ def ask(
     system: str | None = None,
     retries: int = 2,
     timeout: float | None = None,
+    thinking: str | None = None,
 ) -> str:
     """发送文本请求,返回模型文本输出。带有限次退避重试(应对 429)。
 
     timeout: 单次请求超时秒数(None = SDK 默认)。
+    thinking: 火山 Seed 系模型的思考链开关,"disabled" 可大幅降低延时
+        (创意类任务无需思考链);None = 模型默认。
     """
     payload = prompt if system is None else f"{system}\n\n{prompt}"
     cli = client() if timeout is None else client().with_options(timeout=timeout)
+    extra = {"thinking": {"type": thinking}} if thinking is not None else None
     last_err: Exception | None = None
     for attempt in range(retries + 1):
         try:
-            resp = cli.responses.create(model=model, input=payload)
+            if extra is not None:
+                resp = cli.responses.create(model=model, input=payload, extra_body=extra)
+            else:
+                resp = cli.responses.create(model=model, input=payload)
             return resp.output_text
         except Exception as err:  # noqa: BLE001 - 顶层调用统一处理
             last_err = err
@@ -60,6 +67,7 @@ def ask_json(
     system: str | None = None,
     retries: int = 2,
     timeout: float | None = None,
+    thinking: str | None = None,
 ) -> dict | list:
     """要求模型输出 JSON 并解析。"""
     text = ask(
@@ -68,6 +76,7 @@ def ask_json(
         system=system,
         retries=retries,
         timeout=timeout,
+        thinking=thinking,
     )
     return _extract_json(text)
 

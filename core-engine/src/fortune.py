@@ -24,8 +24,9 @@ GRADES: list[tuple[str, int, float]] = [
 
 CATEGORIES = ["财运", "事业", "姻缘", "学业", "健康", "今日运势"]
 
-# LLM 单次预算 8 秒(板端总超时 10 秒)
-LLM_TIMEOUT_SECONDS = 8.0
+# LLM 单次预算 12 秒。关闭思考链后实测约 6 秒,留余量应对偶发抖动;
+# 与板端 HTTP 超时(10s)/思考动画上限(12s)对齐。
+LLM_TIMEOUT_SECONDS = 12.0
 
 _SYSTEM = (
     "你是赛博财神庙的电子财神,语气俏皮但不轻浮,像一个看透世事又爱开玩笑的老朋友。"
@@ -130,6 +131,7 @@ def generate_fortune(category: str, question: str, answer: str) -> dict:
             system=_SYSTEM,
             retries=0,
             timeout=LLM_TIMEOUT_SECONDS,
+            thinking="disabled",  # 签文为创意类任务,关闭思考链 30s->6s
         )
         if not isinstance(raw, dict):
             raise ValueError(f"LLM 返回类型异常: {type(raw)}")
