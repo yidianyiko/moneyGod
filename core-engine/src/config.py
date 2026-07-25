@@ -26,3 +26,21 @@ def get_api_key() -> str:
 def get_fortune_token() -> str:
     """求签接口鉴权 token;空字符串表示不校验(开发环境)。"""
     return (os.getenv("FORTUNE_API_TOKEN") or "").strip()
+
+
+# 火山豆包语音合成大模型(Seed TTS 2.0),与 ARK 是两套独立凭证
+VOLC_TTS_URL = "https://openspeech.bytedance.com/api/v1/tts"
+
+
+def get_tts_config() -> dict:
+    """TTS 凭证与音色;appid/token 缺失时抛 RuntimeError,由路由层降级。"""
+    appid = (os.getenv("VOLC_TTS_APPID") or "").strip()
+    token = (os.getenv("VOLC_TTS_TOKEN") or "").strip()
+    if not appid or not token:
+        raise RuntimeError("未配置 VOLC_TTS_APPID / VOLC_TTS_TOKEN,TTS 不可用")
+    return {
+        "appid": appid,
+        "token": token,
+        "cluster": (os.getenv("VOLC_TTS_CLUSTER") or "volcano_tts").strip(),
+        "voice": (os.getenv("VOLC_TTS_VOICE") or "zh_male_naiqimengwa_mars_bigtts").strip(),
+    }

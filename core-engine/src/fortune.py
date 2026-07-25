@@ -161,4 +161,78 @@ def generate_fortune(category: str, question: str, answer: str) -> dict:
         return _fallback_result(category, grade, score)
 
 
-__all__ = ["GRADES", "CATEGORIES", "FALLBACK", "draw_grade", "generate_fortune"]
+# 解签互动:兜底是非题/解签(LLM 失败时保接口 200)
+_FALLBACK_ASK = "你心里惦记的那件事,最近一周有新进展吗?"
+_FALLBACK_INTERPRET = {
+    "yes": "既然已经在动,这支签就是让你顺势而为:把节奏稳住,不贪快不冒进,把已经开始的事做完整。财神看好你这股劲,汪。",
+    "no": "没动静也不用慌,这支签提醒你:变化往往在你收拾利索之后才来。先把手头最小的一件事收个尾,给新机会腾位置,汪。",
+}
+
+
+def generate_ask(lot_no: int, grade: str, poem: list[str], category: str) -> dict:
+    """结合签文生成一道是非题;LLM 失败返回兜底题,保证 200。"""
+    prompt = (
+        f"用户在赛博财神庙抽到了第{lot_no}签({grade}),类目「{category}」,签诗:\n"
+        + "\n".join(poem)
+        + "\n\n请围绕这支签出一道贴近日常生活的是非题,用户只能回答“是”或“否”。"
+        '输出 JSON,字段: "ask"(一句问题,15~30 字,口语化,不带选项文字)。'
+        "要求:现代白话;只用常用简体汉字;问的是用户自己的处境,不是知识题。"
+    )
+    try:
+        raw = ask_json(
+            prompt,
+            model=SEED_MODEL,
+            system=_SYSTEM,
+            retries=0,
+            timeout=LLM_TIMEOUT_SECONDS,
+            thinking="disabled",
+        )
+        ask = raw.get("ask") if isinstance(raw, dict) else None
+        if not isinstance(ask, str) or not ask.strip():
+            raise ValueError(f"LLM ask 字段异常: {raw!r}")
+        return {"ask": _sanitize_text(ask.strip())[:60]}
+    except Exception as err:  # noqa: BLE001
+        logger.warning("ask LLM 失败,走兜底题: %s", err)
+        return {"ask": _FALLBACK_ASK}
+
+
+def generate_interpret(
+    lot_no: int, grade: str, poem: list[str], ask: str, reply: str, category: str
+) -> dict:
+    """结合签文+是非回答生成针对性解签;失败走兜底,保证 200。"""
+    reply_cn = "是" if reply == "yes" else "否"
+    prompt = (
+        f"用户在赛博财神庙抽到了第{lot_no}签({grade}),类目「{category}」,签诗:\n"
+        + "\n".join(poem)
+        + f"\n\n庙里追问了用户:「{ask}」,用户的回答是:「{reply_cn}」。\n"
+        '请给出针对性解签,输出 JSON,字段: "interpret"(80~120 字,必须结合签诗、问题和用户的回答,'
+        "给具体看法和一条可执行建议,结尾加一个“汪”字)。"
+        "要求:现代白话;只用常用简体汉字;档位差也要给台阶和盼头。"
+    )
+    try:
+        raw = ask_json(
+            prompt,
+            model=SEED_MODEL,
+            system=_SYSTEM,
+            retries=0,
+            timeout=LLM_TIMEOUT_SECONDS,
+            thinking="disabled",
+        )
+        text = raw.get("interpret") if isinstance(raw, dict) else None
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError(f"LLM interpret 字段异常: {raw!r}")
+        return {"interpret": _sanitize_text(text.strip())[:200]}
+    except Exception as err:  # noqa: BLE001
+        logger.warning("interpret LLM 失败,走兜底: %s", err)
+        return {"interpret": _FALLBACK_INTERPRET["yes" if reply == "yes" else "no"]}
+
+
+__all__ = [
+    "GRADES",
+    "CATEGORIES",
+    "FALLBACK",
+    "draw_grade",
+    "generate_fortune",
+    "generate_ask",
+    "generate_interpret",
+]
