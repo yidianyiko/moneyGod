@@ -21,3 +21,8 @@ def get_api_key() -> str:
             "未找到 ARK_API_KEY。请复制 .env.example 为 .env 并填入火山引擎 Token。"
         )
     return key.strip()
+
+
+def get_fortune_token() -> str:
+    """求签接口鉴权 token;空字符串表示不校验(开发环境)。"""
+    return (os.getenv("FORTUNE_API_TOKEN") or "").strip()

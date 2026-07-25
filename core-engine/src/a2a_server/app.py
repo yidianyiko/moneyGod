@@ -6,6 +6,7 @@
 - GET  /.well-known/agent.json      (A2A SDK 默认路径,兼容)
 - POST /                            (A2A JSON-RPC 端点:message/send, tasks/get 等)
 - POST /api/analyze                 (Web UI 用的结构化分析接口)
+- POST /api/fortune/draw            (赛博财神庙 T5AI 板端求签接口)
 - GET  /healthz                     (存活探针)
 """
 from __future__ import annotations
@@ -22,6 +23,8 @@ from starlette.routing import Route
 
 from ..schemas import UserProfile
 from ..tasks import analyze_structured
+from ..config import get_fortune_token
+from ..fortune import generate_fortune
 from .card import build_agent_card
 from .executor import MoneyGodAgentExecutor
 
@@ -66,11 +69,26 @@ def build_app(base_url: str | None = None) -> Starlette:
         result = await asyncio.to_thread(analyze_structured, text, profile)
         return JSONResponse(result)
 
+    async def api_fortune_draw(request):
+        token = get_fortune_token()
+        if token and request.headers.get("X-Fortune-Token") != token:
+            return JSONResponse({"error": "unauthorized"}, status_code=401)
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001
+            return JSONResponse({"error": "invalid json"}, status_code=400)
+        category = str(body.get("category") or "今日运势")
+        question = str(body.get("question") or "")
+        answer = str(body.get("answer") or "")
+        result = await asyncio.to_thread(generate_fortune, category, question, answer)
+        return JSONResponse(result)
+
     # 兼容 SDK 默认路径 + 健康检查 + Web UI + 结构化 API
     app.router.routes.append(Route("/", home, methods=["GET"]))
     app.router.routes.append(Route("/.well-known/agent.json", compat_card, methods=["GET"]))
     app.router.routes.append(Route("/healthz", healthz, methods=["GET"]))
     app.router.routes.append(Route("/api/analyze", api_analyze, methods=["POST"]))
+    app.router.routes.append(Route("/api/fortune/draw", api_fortune_draw, methods=["POST"]))
     return app
 
 
