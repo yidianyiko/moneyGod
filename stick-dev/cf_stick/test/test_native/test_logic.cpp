@@ -1,5 +1,6 @@
 #include <unity.h>
 #include "shake_detector.h"
+#include "ble_beacon.h"
 
 /* Simulate 50Hz sampling: rest -> 3 violent shakes -> should fire once,
  * further shaking within cooldown must not fire again. */
@@ -37,9 +38,24 @@ void test_slow_peaks_no_trigger(void) {
     TEST_ASSERT_FALSE(fired);
 }
 
+/* Protocol contract test, spec section 1: manufacturer data layout */
+void test_beacon_payload(void) {
+    uint8_t buf[8];
+    beacon_build_payload(buf, /*event=*/0x01, /*seq=*/42, /*batt=*/88);
+    TEST_ASSERT_EQUAL_HEX8(0xFF, buf[0]);  /* vendor ID lo */
+    TEST_ASSERT_EQUAL_HEX8(0xFF, buf[1]);  /* vendor ID hi */
+    TEST_ASSERT_EQUAL_HEX8(0x43, buf[2]);  /* 'C' */
+    TEST_ASSERT_EQUAL_HEX8(0x46, buf[3]);  /* 'F' */
+    TEST_ASSERT_EQUAL_HEX8(0x01, buf[4]);  /* protocol version */
+    TEST_ASSERT_EQUAL_HEX8(0x01, buf[5]);  /* event type */
+    TEST_ASSERT_EQUAL_HEX8(42,   buf[6]);  /* sequence */
+    TEST_ASSERT_EQUAL_HEX8(88,   buf[7]);  /* battery % */
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_shake_triggers_once);
     RUN_TEST(test_slow_peaks_no_trigger);
+    RUN_TEST(test_beacon_payload);
     return UNITY_END();
 }
