@@ -33,3 +33,11 @@ spectrum/.subscribers.json
 stick-dev/.pio_core/
 stick-dev/.pio-core/
 stick-dev/.pio-venv/
+
+# ---- upstream clones with their own git history (committed separately) ----
+t5-dev/TuyaOpen/
+t5-dev/TuyaOpen-T5AI/
+
+# ---- debug scratch files ----
+.usb_tree.txt
+stick-dev/.m5u_develop.cpp

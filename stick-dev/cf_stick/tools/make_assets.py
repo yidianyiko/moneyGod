@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Asset pipeline for CF Stick (StickS3, 240x135 landscape).
 
-scene_change_gifs/{thinking,getting_lottery}.gif -> resize 240x135 ->
+scene_change_gifs/getting_lottery.gif -> resize 240x135 ->
 palette quantize -> frame cap -> C array headers in src/assets/.
 Also generates a short chime WAV as a C array.
 
@@ -19,7 +19,8 @@ from PIL import Image, ImageSequence
 ROOT = Path(__file__).resolve().parents[3]          # moneyGod repo root
 SRC_GIFS = {
     # name -> (source, palette colors)
-    "gif_idle":  (ROOT / "scene_change_gifs/thinking.gif", 16),
+    # gif_shake doubles as the idle screen: firmware renders frame 0 as a
+    # static idle image and plays the full animation on shake.
     "gif_shake": (ROOT / "scene_change_gifs/getting_lottery.gif", 64),
 }
 OUT_DIR = Path(__file__).resolve().parents[1] / "src/assets"

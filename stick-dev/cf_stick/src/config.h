@@ -4,6 +4,7 @@
 #define SHAKE_PEAK_COUNT    3       /* peaks required within window */
 #define SHAKE_WINDOW_MS     800     /* peak counting window */
 #define SHAKE_COOLDOWN_MS   2000    /* cooldown after trigger */
+#define SHAKE_ANIM_REPEATS  3       /* shake animation plays this many times */
 #define IMU_POLL_MS         20      /* 50Hz sampling */
 /* ---- BLE beacon ---- */
 #define BLE_BURST_MS        1500    /* advertising burst duration */

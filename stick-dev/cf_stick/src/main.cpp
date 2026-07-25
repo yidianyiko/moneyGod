@@ -24,6 +24,28 @@ void setup() {
     beacon_init();
     ui_init();
     apply_volume();
+    /* boot audio self-test: show speaker state, beep, then play the chime */
+    M5.Display.fillScreen(TFT_WHITE);
+    M5.Display.setTextColor(TFT_BLACK, TFT_WHITE);
+    M5.Display.setTextSize(2);
+    M5.Display.setCursor(8, 8);
+    M5.Display.printf("SPK %s vol %u", M5.Speaker.isEnabled() ? "OK" : "OFF",
+                      (unsigned)M5.Speaker.getVolume());
+    M5.Speaker.tone(1000, 1500);
+    delay(300);                          /* let the enable callback run */
+    /* audio chain diagnostic: codec + PMIC presence, PA enable bit */
+    bool es_ok = M5.In_I2C.scanID(0x18); /* ES8311 codec */
+    bool pm_ok = M5.In_I2C.scanID(0x6E); /* M5 PM1 PMIC */
+    uint8_t pm11 = M5.In_I2C.readRegister8(0x6E, 0x11, 100000);
+    uint8_t es13 = M5.In_I2C.readRegister8(0x18, 0x13, 100000);
+    M5.Display.setCursor(8, 32);
+    M5.Display.printf("ES:%c PM:%c", es_ok ? 'Y' : 'N', pm_ok ? 'Y' : 'N');
+    M5.Display.setCursor(8, 56);
+    M5.Display.printf("PM11=%02X ES13=%02X", pm11, es13);
+    delay(1500);
+    M5.Speaker.playWav(wav_shake, wav_shake_len);
+    delay(1500);
+    ui_play_idle();
     Serial.println("[cf-stick] ready");
 }
 
