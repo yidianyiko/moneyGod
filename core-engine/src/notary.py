@@ -20,7 +20,7 @@ from pyinjective.wallet import PrivateKey
 
 MEMO_PREFIX = "moneygod:v1:"
 _EXPLORER_TX_URL = "https://testnet.explorer.injective.network/transaction/{}"
-_BROADCAST_TIMEOUT_SECONDS = 10
+_BROADCAST_TIMEOUT_SECONDS = 30
 
 
 def _canonical_payload(result: dict) -> dict:

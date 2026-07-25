@@ -24,6 +24,7 @@ from starlette.applications import Starlette
 from starlette.responses import FileResponse, JSONResponse, Response
 from starlette.routing import Route
 
+from .. import compliance, config
 from ..schemas import UserProfile
 from ..tasks import analyze_structured
 from ..config import get_fortune_token
@@ -35,6 +36,7 @@ from .executor import MoneyGodAgentExecutor
 PANDAAI_CARD_PATH = "/.well-known/agent-card.json"
 _WEB_DIR = Path(__file__).parent / "web"
 _VALID_RISK = {"conservative", "balanced", "aggressive"}
+_TIMEOUT_SECONDS = config.MAX_RESPONSE_SECONDS - 30
 
 
 def build_app(base_url: str | None = None) -> Starlette:
@@ -70,7 +72,17 @@ def build_app(base_url: str | None = None) -> Starlette:
         if not text:
             return JSONResponse({"type": "error", "message": "请输入标的代码或市场问题"}, status_code=400)
         profile = UserProfile(userId="web-ui", riskLevel=risk)
-        result = await asyncio.to_thread(analyze_structured, text, profile)
+        try:
+            result = await asyncio.wait_for(
+                asyncio.to_thread(analyze_structured, text, profile), timeout=_TIMEOUT_SECONDS
+            )
+        except asyncio.TimeoutError:
+            result = {
+                "type": "timeout",
+                "task": text,
+                "message": "本次分析耗时超出响应时间上限,已转为保守中性提示。",
+                "disclaimer": compliance.RISK_DISCLAIMER,
+            }
         return JSONResponse(result)
 
     async def api_fortune_draw(request):

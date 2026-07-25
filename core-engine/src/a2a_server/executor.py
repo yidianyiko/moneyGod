@@ -12,7 +12,11 @@ from a2a.server.tasks import TaskUpdater
 from a2a.types import Part, TextPart
 from a2a.utils import new_task
 
+from .. import compliance, config
 from ..tasks import handle_task
+
+# PandaAI 硬要求 ≤20 分钟;留 30 秒安全余量,确保在平台侧超时前主动收敛到降级响应。
+_TIMEOUT_SECONDS = config.MAX_RESPONSE_SECONDS - 30
 
 
 class MoneyGodAgentExecutor(AgentExecutor):
@@ -30,7 +34,15 @@ class MoneyGodAgentExecutor(AgentExecutor):
         await updater.start_work()
 
         try:
-            report = await asyncio.to_thread(handle_task, query)
+            try:
+                report = await asyncio.wait_for(
+                    asyncio.to_thread(handle_task, query), timeout=_TIMEOUT_SECONDS
+                )
+            except asyncio.TimeoutError:
+                report = compliance.ensure_disclaimer(
+                    "本次分析耗时超出响应时间上限,已转为保守中性提示。"
+                    "建议:市场存在不确定性时,优先控制仓位、分散配置、保留流动性,可稍后重试或简化任务范围。"
+                )
             await updater.add_artifact(
                 [Part(root=TextPart(text=report))],
                 name="quant_analysis",

@@ -70,7 +70,7 @@ def build_agent_card(base_url: str | None = None) -> AgentCard:
         ),
         url=f"{base}/",
         version="0.2.0",
-        protocol_version="0.2.6",
+        protocol_version="0.3.0",
         preferred_transport="JSONRPC",
         provider=AgentProvider(
             organization="AdventureX 2026 · MoneyGod Team",
