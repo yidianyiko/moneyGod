@@ -10,6 +10,7 @@
 - POST /api/fortune/question        (结合签文生成解签是非题)
 - POST /api/fortune/interpret       (结合是非回答生成针对性解签)
 - POST /api/fortune/tts             (签文语音播报,返回 16K 单声道 PCM)
+- GET  /gifs/*                      (网页用的像素动画素材,静态目录)
 - GET  /healthz                     (存活探针)
 """
 from __future__ import annotations
@@ -22,7 +23,8 @@ from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
 from starlette.applications import Starlette
 from starlette.responses import FileResponse, JSONResponse, Response
-from starlette.routing import Route
+from starlette.routing import Mount, Route
+from starlette.staticfiles import StaticFiles
 
 from .. import compliance, config
 from ..schemas import UserProfile
@@ -35,6 +37,8 @@ from .executor import MoneyGodAgentExecutor
 
 PANDAAI_CARD_PATH = "/.well-known/agent-card.json"
 _WEB_DIR = Path(__file__).parent / "web"
+# 网页版动画素材,由 core-engine/tools/prep_web_gifs.py 从 scene_change_gifs/ 压制而来
+_GIF_DIR = _WEB_DIR / "gifs"
 _VALID_RISK = {"conservative", "balanced", "aggressive"}
 _TIMEOUT_SECONDS = config.MAX_RESPONSE_SECONDS - 30
 
@@ -170,6 +174,10 @@ def build_app(base_url: str | None = None) -> Starlette:
     app.router.routes.append(Route("/api/fortune/question", api_fortune_question, methods=["POST"]))
     app.router.routes.append(Route("/api/fortune/interpret", api_fortune_interpret, methods=["POST"]))
     app.router.routes.append(Route("/api/fortune/tts", api_fortune_tts, methods=["POST"]))
+    if _GIF_DIR.is_dir():
+        app.router.routes.append(
+            Mount("/gifs", app=StaticFiles(directory=_GIF_DIR), name="gifs")
+        )
     return app
 
 

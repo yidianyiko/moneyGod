@@ -18,6 +18,10 @@
   .wrap{max-width:960px;margin:0 auto;padding:28px 18px 60px}
   header{text-align:center;color:#fff;margin-bottom:18px}
   .logo{font-size:48px;line-height:1}
+  /* 像素动画素材:统一 pixelated 放大,别被浏览器插值糊掉 */
+  .pix{image-rendering:pixelated;display:block}
+  .mascot{width:min(320px,78vw);height:auto;margin:0 auto 4px;border-radius:14px;
+    border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);background:#fff}
   h1{margin:6px 0 2px;font-size:26px;letter-spacing:2px}
   .tag{color:var(--gold);font-size:14px;letter-spacing:6px}
   .sub{color:#ffe9c7;font-size:12px;margin-top:6px;opacity:.9}
@@ -69,9 +73,20 @@
   .fortune .sen{color:#7a5a1e;margin-top:4px}
   .spark{display:block;margin-top:8px}
   .loading{text-align:center;color:#fff;padding:20px}
-  .lantern{font-size:34px;animation:sway 1.4s ease-in-out infinite}
-  @keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  .loading .shake{width:min(300px,72vw);height:auto;margin:0 auto 10px;border-radius:12px;
+    border:2px solid var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.3);background:#fff}
+  .loading .step{color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:4px;min-height:22px}
   .err{background:#fff3f3;border:2px solid #f3c9c9;color:#a02020}
+  /* 抽签结果头部动画 */
+  .fortune .drop{width:min(260px,64vw);height:auto;margin:0 auto 10px;border-radius:12px;
+    border:1.5px solid var(--gold2);background:#fff}
+  /* 硬件端素材陈列 */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:10px}
+  .gallery figure{margin:0;background:#fffdf7;border:1px solid #eaddbd;border-radius:12px;
+    padding:8px;text-align:center}
+  .gallery img{width:100%;height:auto;border-radius:8px;background:#fff}
+  .gallery figcaption{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .gallery figcaption b{color:var(--ink);display:block;font-size:13px}
   /* 多 Agent 协作 */
   .flow{display:flex;flex-direction:column;gap:0}
   .node{display:flex;gap:10px;align-items:flex-start;position:relative;padding:8px 0}
@@ -99,7 +114,8 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="logo">🧧🀄💰</div>
+    <img class="pix mascot" src="/gifs/hero.gif" width="480" height="320"
+         alt="财神吉祥物挥手打招呼：今天怎么样？" />
     <h1>财神 MoneyGod</h1>
     <div class="tag">玄 学 皮 · 量 化 芯</div>
     <div class="sub">多 Agent 投研团队 · 因子→策略→回测反馈闭环 · 数字由代码算 · 非投资建议</div>
@@ -126,11 +142,38 @@
   </div>
 
   <div id="loading" class="loading hidden">
-    <div class="lantern">🏮</div>
+    <img class="pix shake" src="/gifs/shaking.gif" width="400" height="267" alt="摇签筒中" />
+    <div class="step" id="loadingStep"></div>
     <div>财神召集投研团队(Planner→Factor→Strategy→Backtest→Risk→Report)协作运算中…</div>
   </div>
 
   <div id="result"></div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>🕹️ 赛博财神庙 · 桌面硬件端</h2>
+    <div class="muted" style="line-height:1.7">
+      同一套多 Agent 引擎也驱动桌面财神摆件:T5AI 板跑像素屏动画与语音播报,
+      StickS3 摇一摇通过 BLE 广播触发求签。下面是烧进固件、也在本页复用的实际动画素材。
+    </div>
+    <div class="gallery">
+      <figure><img class="pix" loading="lazy" src="/gifs/opening_6.gif" alt="财神远景开口问事" />
+        <figcaption><b>开场 ①</b>远景问事</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/opening_2.gif" alt="财神登场" />
+        <figcaption><b>开场 ②</b>财神登场</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/opening_3.gif" alt="财神含笑" />
+        <figcaption><b>开场 ③</b>含笑致意</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/opening_4.gif" alt="财神张开双手" />
+        <figcaption><b>开场 ④</b>张手相迎</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/opening_5.gif" alt="财神近景特写" />
+        <figcaption><b>开场 ⑤</b>近景特写</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/thinking.gif" alt="财神思考中" />
+        <figcaption><b>运算中</b>引擎跑因子/回测</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/shaking.gif" alt="摇动签筒" />
+        <figcaption><b>求签</b>摇签筒</figcaption></figure>
+      <figure><img class="pix" loading="lazy" src="/gifs/lottery_get.gif" alt="签掉出来" />
+        <figcaption><b>出签</b>签落见结论</figcaption></figure>
+    </div>
+  </div>
 
   <div class="disclaimer" id="footer"></div>
 </div>
@@ -211,7 +254,8 @@ function raw(v, p=2){ return (v==null)?'-':Number(v).toFixed(p); }
 
 function fortuneCard(adv){
   const c = el('div','card fortune');
-  c.innerHTML = `<div class="lvl">今 日 · ${esc(adv.actionHintCn||'宜观')}</div>
+  c.innerHTML = `<img class="pix drop" src="/gifs/lottery_get.gif" width="400" height="267" alt="签落" />
+    <div class="lvl">今 日 · ${esc(adv.actionHintCn||'宜观')}</div>
     <div class="sen" style="font-size:16px;font-weight:700;margin-top:6px">${esc(adv.signature||'')}</div>
     <div class="sen">${esc(adv.plainAdvice||'')}</div>`;
   return c;
@@ -343,7 +387,8 @@ function render(data){
     const map={buy:'宜进',hold:'宜守',reduce:'宜减',watch:'宜观'};
     const top = sigs.slice().sort((a,b)=>b.confidence-a.confidence)[0];
     box.appendChild(el('div','card fortune',
-      `<div class="lvl">今 日 · ${map[top.action]||'宜观'}</div>
+      `<img class="pix drop" src="/gifs/lottery_get.gif" width="400" height="267" alt="签落" />
+       <div class="lvl">今 日 · ${map[top.action]||'宜观'}</div>
        <div class="sen">${esc(data.marketView||'')}</div>`));
   }
 
@@ -377,10 +422,22 @@ function render(data){
   box.appendChild(el('div','src','📌 数据来源：'+esc((data.sources||[]).join(', '))));
 }
 
+// 加载态文案跟着流水线走一遍，让等待期间也看得出是多 Agent 在接力（纯展示，不代表真实进度）
+const STEPS = ['Planner 拆解投研需求…','Factor 横截面多因子打分…','Strategy 生成策略参数…',
+  'Backtest 无前视滚动回测…','Strategy 按回测结果迭代…','Risk 组合风险画像…','Report 撰写投研报告…'];
+let stepTimer = null;
+function startSteps(){
+  let i = 0;
+  $('#loadingStep').textContent = STEPS[0];
+  stepTimer = setInterval(()=>{ i = (i+1) % STEPS.length; $('#loadingStep').textContent = STEPS[i]; }, 2600);
+}
+function stopSteps(){ if(stepTimer){ clearInterval(stepTimer); stepTimer = null; } }
+
 async function ask(){
   const text = $('#q').value.trim();
   if(!text){ $('#q').focus(); return; }
   $('#go').disabled=true; $('#loading').classList.remove('hidden'); $('#result').innerHTML='';
+  startSteps();
   try{
     const r = await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({text, riskLevel:$('#risk').value})});
@@ -389,6 +446,7 @@ async function ask(){
   }catch(e){
     render({type:'error', message:'请求失败：'+e});
   }finally{
+    stopSteps();
     $('#go').disabled=false; $('#loading').classList.add('hidden');
   }
 }
