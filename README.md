@@ -6,6 +6,13 @@ AdventureX 2026 黑客松项目 — 一台桌面"财神"装置：摇签 → 抽�
 
 > 详细架构与开发指南见 [`CLAUDE.md`](CLAUDE.md)。
 
+## 成品展示
+
+<p align="center">
+  <img src="assets/photos/moneygod_product_1.jpg" width="45%" />
+  <img src="assets/photos/moneygod_product_2.jpg" width="45%" />
+</p>
+
 ---
 
 ## 硬件清单 (BOM)
