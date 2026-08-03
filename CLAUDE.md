@@ -23,18 +23,43 @@ M1–M5 monorepo split and the two-track ambition — **they are stale**; treat 
 
 ## Repo layout
 
+Everything is in this one repo:
+
 | Path | What |
 |---|---|
 | `core-engine/` | Python backend — the only running service |
-| `t5-dev/` | T5AI board build/flash/monitor scripts, hardware notes, font & GIF tooling |
+| `t5-dev/TuyaOpen/` | T5AI firmware — a vendored fork of `tuya/TuyaOpen` (see below) |
+| `t5-dev/` | board build/flash/monitor scripts, hardware notes, font & GIF tooling |
 | `stick-dev/` | StickS3 shake-remote firmware (PlatformIO) |
 | `assets/`, `scene_change_gifs/`, `赛博财神庙_原创签谱.json` | pixel art, animations, the original lot poems |
 
-The T5AI firmware lives in a **separate repo**: `github.com/yidianyiko/moneyGod-TuyaOpen`
-(a fork of `tuya/TuyaOpen`; your code is `apps/cyber_fortune/` + `apps/mist_core/`). It is
-intentionally not a submodule — `.gitignore` expects it cloned at `t5-dev/TuyaOpen/`.
-It talks to this backend over the four `/api/fortune/*` routes below; that HTTP contract is the
-only coupling between the two repos.
+Firmware ↔ backend coupling is the four `/api/fortune/*` HTTP routes and nothing else.
+
+### `t5-dev/TuyaOpen/` — vendored via git subtree
+
+Imported with `git subtree add --prefix=t5-dev/TuyaOpen ... --squash`, so this repo carries a
+**single squashed snapshot**, not TuyaOpen's full history (that would have added ~200MB).
+Full history lives in `github.com/yidianyiko/moneyGod-TuyaOpen`, which remains the upstream-sync
+point. To pull newer TuyaOpen:
+
+```bash
+git remote add tuyaopen https://github.com/yidianyiko/moneyGod-TuyaOpen.git   # once
+git subtree pull --prefix=t5-dev/TuyaOpen tuyaopen master --squash
+```
+
+Our own firmware code inside it is `apps/cyber_fortune/` and `apps/mist_core/`; everything else
+is upstream Tuya SDK — don't reformat or "clean up" outside those two dirs, it makes future
+subtree pulls conflict.
+
+**Two deliberate divergences from the fork**, both forced by vendoring into a subdirectory:
+
+1. The four former git submodules (`FlashDB`, `littlefs`, `cJSON`, `backoffAlgorithm`) are now
+   **checked in as plain files**. Git only reads `.gitmodules` at the repo root, so as a subtree
+   they would have become unresolvable gitlinks. `git clone` now gives you a buildable tree with
+   no `git submodule update` step.
+2. `tools/cli_command/util_git.py::download_submoudules()` returns early when there is no
+   `.gitmodules` / the path is not a repo root. Upstream calls `Repo(repo_path)` unconditionally,
+   which raises `InvalidGitRepositoryError` here and would break `tos.py build`.
 
 ## Commands
 
@@ -49,6 +74,16 @@ HOST=0.0.0.0 PORT=8000 .venv/bin/python serve.py
 ```
 
 Install/update deps: `.venv/bin/pip install -r requirements.txt` (`requirements-dev.txt` adds pytest).
+
+Firmware (from the repo root; the scripts resolve `t5-dev/TuyaOpen/` relative to themselves, so
+they work from any checkout location):
+
+```bash
+bash t5-dev/cf_build.sh          # incremental build
+bash t5-dev/cf_build.sh clean    # full clean first (needed after a BOARD/config change)
+bash t5-dev/cf_flash.sh  [port] [baud]   # default 921600
+bash t5-dev/cf_monitor.sh [port] [baud]  # log is on the *503* CDC port @ 460800
+```
 
 ### Required env (`core-engine/.env`, gitignored — copy from `.env.example`)
 

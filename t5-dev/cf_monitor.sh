@@ -12,7 +12,8 @@
 #     RST button to see the boot banner; the app only logs once at startup.
 set -e
 
-cd /Users/oliver/data/projects/moneyGod/t5-dev/TuyaOpen/apps/cyber_fortune
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR/TuyaOpen/apps/cyber_fortune"
 . ../../export.sh >/dev/null 2>&1
 
 unset HTTPS_PROXY HTTP_PROXY ALL_PROXY https_proxy http_proxy all_proxy

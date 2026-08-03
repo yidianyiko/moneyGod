@@ -10,7 +10,10 @@
 #   - Unsetting *_PROXY + no_proxy='*' bypasses a dead/stale Clash proxy.
 set -e
 
-APP_DIR=/Users/oliver/data/projects/moneyGod/t5-dev/TuyaOpen/apps/cyber_fortune
+# TuyaOpen lives in this repo (git subtree at t5-dev/TuyaOpen), so resolve the
+# app dir relative to this script instead of hardcoding anyone's home directory.
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+APP_DIR="$SCRIPT_DIR/TuyaOpen/apps/cyber_fortune"
 cd "$APP_DIR"
 
 # activate the TuyaOpen environment (adds tos.py to PATH)

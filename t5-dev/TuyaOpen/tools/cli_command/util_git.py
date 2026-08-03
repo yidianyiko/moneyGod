@@ -6,7 +6,7 @@ import os
 import re
 from git import Repo, Git
 from git import RemoteProgress
-from git.exc import GitCommandError
+from git.exc import GitCommandError, InvalidGitRepositoryError
 
 from tools.cli_command.util import get_logger, do_subprocess
 
@@ -247,14 +247,25 @@ def git_get_commit(repo_path):
 
 def download_submoudules(repo_path):
     logger = get_logger()
-    repo = Repo(repo_path)
-    if repo.bare:
-        logger.warning(f"[{repo_path}] is bare repository.")
-        return True
 
+    # moneyGod fork: this tree is vendored into the moneyGod monorepo via
+    # git subtree, so [repo_path] is no longer a repository root and the former
+    # submodules (FlashDB / littlefs / cJSON / backoffAlgorithm) are checked in
+    # as plain files. Repo() would raise InvalidGitRepositoryError here, so bail
+    # out early — there is nothing to download.
     gitmodules_path = os.path.join(repo_path, ".gitmodules")
     if not os.path.exists(gitmodules_path):
-        logger.warning(f"Not found [{gitmodules_path}].")
+        logger.warning(f"Not found [{gitmodules_path}], skip submodule update.")
+        return True
+
+    try:
+        repo = Repo(repo_path)
+    except InvalidGitRepositoryError:
+        logger.warning(f"[{repo_path}] is not a repository root, skip submodule update.")
+        return True
+
+    if repo.bare:
+        logger.warning(f"[{repo_path}] is bare repository.")
         return True
 
     submodules = repo.submodules
