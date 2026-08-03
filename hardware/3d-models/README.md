@@ -5,20 +5,18 @@
 
 ## 下载
 
-**一键打包下载（推荐，3.8 MB）**
-
-<https://github.com/yidianyiko/moneyGod/raw/master/hardware/3d-models/moneygod-shrine-stl.zip>
-
-**单个零件** — 在 GitHub 上点开任意 `.stl` 会直接渲染 3D 预览，右上角 `Download` 即可下载：
+**网页上单个下载** — 在 GitHub 点开任意 `.stl` 会直接渲染 3D 预览，右上角 `Download` 即可：
 
 <https://github.com/yidianyiko/moneyGod/tree/master/hardware/3d-models>
 
-命令行：
+**命令行一次拿全部** — 仓库里带了 TuyaOpen SDK，很大，用稀疏检出只拉这个目录：
 
 ```bash
-# 只要模型，不想 clone 整个仓库（仓库里带了 TuyaOpen SDK，很大）
-curl -LO https://github.com/yidianyiko/moneyGod/raw/master/hardware/3d-models/moneygod-shrine-stl.zip
-unzip moneygod-shrine-stl.zip -d moneygod-stl
+git clone --filter=blob:none --no-checkout https://github.com/yidianyiko/moneyGod.git
+cd moneyGod
+git sparse-checkout set hardware/3d-models
+git checkout master
+# 模型在 hardware/3d-models/
 ```
 
 ## 零件清单
@@ -58,16 +56,3 @@ unzip moneygod-shrine-stl.zip -d moneygod-stl
 
 - 屏幕 / 摄像头模块尺寸与原理图：[`t5-dev/hardware/`](../../t5-dev/hardware/)
 - 热敏打印机 EM5820H 规格书：[`t5-dev/hardware/printer/`](../../t5-dev/hardware/printer/)
-
-## 更新模型时
-
-`moneygod-shrine-stl.zip` 是由同目录的 STL 打包出来的，改了 STL 记得重新生成，否则打包版会过期：
-
-```bash
-cd hardware/3d-models
-python3 -c "
-import zipfile, glob
-with zipfile.ZipFile('moneygod-shrine-stl.zip','w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-    for f in sorted(glob.glob('*.stl')): z.write(f)
-"
-```

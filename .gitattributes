@@ -1,3 +1,2 @@
 # 3D 模型:二进制,不做 diff / 合并,也不计入语言统计
 *.stl binary linguist-generated
-*.zip binary
