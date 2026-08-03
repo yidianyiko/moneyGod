@@ -30,9 +30,10 @@ stick-dev/.pio_core/
 stick-dev/.pio-core/
 stick-dev/.pio-venv/
 
-# ---- upstream clones with their own git history (committed separately) ----
-t5-dev/TuyaOpen/
-t5-dev/TuyaOpen-T5AI/
+# ---- TuyaOpen build output (源码本体由 git subtree 纳管,见 CLAUDE.md) ----
+t5-dev/TuyaOpen/.build/
+t5-dev/TuyaOpen/.venv/
+t5-dev/TuyaOpen/**/output/
 
 # ---- debug scratch files ----
 .usb_tree.txt
