@@ -1,0 +1,75 @@
+config CHIP_CHOICE
+    string
+    default "T5AI"
+
+config BOARD_CHOICE
+    string
+    default "TUYA_T5AI_BOARD"
+
+config BOARD_CONFIG
+    bool
+    default y
+    select ENABLE_AUDIO_CODECS
+    select ENABLE_LED
+    select ENABLE_BUTTON
+
+choice TUYA_T5AI_BOARD_VERSION
+    prompt "choose TUYA_T5AI_BOARD version"
+    default TUYA_T5AI_BOARD_VERSION_102
+    help
+        Select the version of the TUYA T5AI board you are using.
+
+    config TUYA_T5AI_BOARD_VERSION_101
+        bool "T5AI_BOARD_V101"
+
+    config TUYA_T5AI_BOARD_VERSION_102
+        bool "T5AI_BOARD_V102"
+        select ENABLE_AUDIO_AEC
+endchoice
+
+# ---- LCD Module (choose one) ----
+choice TUYA_T5AI_BOARD_LCD
+    prompt "LCD module"
+    default TUYA_T5AI_BOARD_LCD_NONE
+
+    config TUYA_T5AI_BOARD_LCD_NONE
+        bool "none"
+
+    config TUYA_T5AI_BOARD_LCD_35565
+        bool "3.5 inch 480x320 RGB565 (ILI9488 + GT1151 touch)"
+        select ENABLE_DISPLAY
+        select ENABLE_TP
+        select ENABLE_LVGL_OS_FREERTOS if (LVGL_VERSION_9)
+        select ENABLE_LVGL_DUAL_DISP_BUFF if (ENABLE_LIBLVGL)
+
+    config TUYA_T5AI_BOARD_LCD_EYES
+        bool "1.28 inch 128x128 SPI round LCD x2 (ST7735S eyes)"
+        select ENABLE_DISPLAY
+        select ENABLE_LVGL_OS_FREERTOS if (LVGL_VERSION_9)
+        select ENABLE_LVGL_DUAL_DISP_BUFF if (ENABLE_LIBLVGL)
+        select ENABLE_LVGL_V8_RGB565_SWAP if (LVGL_VERSION_8 && LVGL_V8_COLOR_DEPTH_16)
+
+    config TUYA_T5AI_BOARD_LCD_096_OLED
+        bool "0.96 inch 128x64 I2C OLED (SSD1306)"
+        select ENABLE_DISPLAY
+        select ENABLE_LVGL_OS_FREERTOS if (LVGL_VERSION_9)
+endchoice
+
+config ENABLE_EYES_TWO_LCD
+    bool "dual display (drive both eyes independently)"
+    depends on TUYA_T5AI_BOARD_LCD_EYES
+    default n
+    select ENABLE_DISPLAY_2
+
+# ---- Camera Module ----
+config TUYA_T5AI_BOARD_CAMERA
+    bool "Camera module (GC2145 DVP)"
+    default n
+    select ENABLE_CAMERA
+
+# ---- Printer Module ----
+config TUYA_T5AI_BOARD_PRINTER_DP48
+    bool "DP-48A ESC/POS thermal printer (UART0, 9600 bps)"
+    default n
+    select ENABLE_PRINTER
+    select ENABLE_PRINTER_DP48

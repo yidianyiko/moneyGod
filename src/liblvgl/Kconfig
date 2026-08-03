@@ -1,0 +1,100 @@
+menuconfig ENABLE_LIBLVGL
+    bool "configure enable/disable liblvgl"
+    select ENABLE_DISPLAY
+    default n
+
+    if (ENABLE_LIBLVGL)
+        choice LIBLVGL_VERSION
+            prompt "the version of the lvgl lib"
+            default LVGL_VERSION_9
+
+            config LVGL_VERSION_8
+                bool "LVGL 8"
+            config LVGL_VERSION_9
+                bool "LVGL 9"
+        endchoice
+
+        if(LVGL_VERSION_8)
+            choice LIBLVGL_V8_COLOR_DEPTH
+                prompt "the color depth of the lvgl v8"
+                default LVGL_V8_COLOR_DEPTH_16
+
+                config LVGL_V8_COLOR_DEPTH_16
+                    bool "16-bit color"
+                config LVGL_V8_COLOR_DEPTH_24
+                    bool "24-bit color"
+            endchoice
+        endif
+
+        config ENABLE_LVGL_OS_FREERTOS
+            bool "enable lvgl os freertos"
+            depends on LVGL_VERSION_9
+            default n
+
+        config ENABLE_LVGL_TP
+            bool "enable lvgl tp"
+            select ENABLE_TP
+            default n
+
+        config ENABLE_LVGL_DEMO
+            bool "enable lvgl demo"
+            default n
+
+        config ENABLE_LVGL_MONITOR
+            bool "enable lvgl monitor"
+            default n
+
+        config ENABLE_LVGL_ENCODER
+            bool "enable lvgl encoder"
+            select ENABLE_ENCODER
+            default n
+
+        config ENABLE_LVGL_LODEPNG
+            bool "enable lvgl LODEPNG decoder library"
+            default n
+
+        config ENABLE_LVGL_PARTIAL_FLUSH
+            bool "enable partial flush (bypass full-frame buffer)"
+            default n
+            help
+                When enabled and the display driver reports has_vram=true,
+                LVGL flushes each partial area directly to the panel without
+                allocating a full-frame intermediate buffer. This saves significant
+                memory (e.g. 768KB for 800x480 RGB565) and reduces latency.
+                If the driver does not support partial writes (has_vram=false),
+                this option has no effect and full-frame mode is used.
+
+        config ENABLE_LVGL_DUAL_DISP_BUFF
+            bool "enable lvgl dual display buffer"
+            depends on !ENABLE_LVGL_PARTIAL_FLUSH
+            default n
+
+        config ENABLE_LVGL_DRAW_BUF_PSRAM
+            bool "allocate LVGL draw buffer from PSRAM"
+            depends on ENABLE_EXT_RAM
+            default y
+            help
+                When enabled, LVGL draw buffers are allocated from PSRAM
+                (via tkl_system_psram_malloc). Disable this to use internal SRAM
+                for higher rendering throughput on RGB parallel displays.
+
+        choice
+            prompt "the proportion of the draw buffer size"
+
+            config LV_DRAW_BUF_PROPORTION_10
+                bool "10% of the display size"
+            config LV_DRAW_BUF_PROPORTION_5
+                bool "5% of the display size"
+        endchoice
+
+        config LV_DRAW_BUF_PARTS
+            int
+            default 10 if LV_DRAW_BUF_PROPORTION_10
+            default 20 if LV_DRAW_BUF_PROPORTION_5
+
+        # Font configuration
+        rsource "Fonts_Kconfig"
+
+        # PC Simulator
+        rsource "simulator/Kconfig"
+    endif

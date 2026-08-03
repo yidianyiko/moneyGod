@@ -1,0 +1,82 @@
+menu "configure app (your_otto_robot) "
+
+config TUYA_PRODUCT_ID
+    string "product ID of project"
+    default "aub53kai42j8fdlf"
+
+choice
+    prompt "choose Otto type"
+    default OTTO_TYPE_NINJA_OTTO
+
+    config OTTO_TYPE_NINJA_OTTO
+    bool "ninja_otto"
+
+    config OTTO_TYPE_OTTO
+    bool "otto"
+endchoice
+
+if(OTTO_TYPE_OTTO)
+    choice
+        prompt "choose Otto product profile"
+        default OTTO_PRODUCT_LEGACY
+
+        config OTTO_PRODUCT_LEGACY
+        bool "legacy product (6 servos, trim DPs, multi-DP control)"
+
+        config OTTO_PRODUCT_ST7789_V1
+        bool "ST7789 V1 product (4 servos, PID 2aay22ssg224cpvi, ptz_control DP5)"
+    endchoice
+
+    config OTTO_NO_ARMS
+        bool "Otto robot without arm servos"
+        default y if OTTO_PRODUCT_ST7789_V1
+        default n
+
+    config OTTO_NO_SERVO_TRIM
+        bool "disable servo trim calibration DPs and KV"
+        default y if OTTO_PRODUCT_ST7789_V1
+        default n
+
+    choice
+        prompt "choose Otto board type"
+        default OTTO_BOARD_DEFAULT_TXP
+
+        config OTTO_BOARD_DEFAULT_TXP
+        bool "board default txp Otto robot servo pin define"
+
+        config OTTO_BOARD_DREAM
+        bool "board dream Otto robot servo pin define"
+    endchoice
+endif
+
+config ENABLE_APP_CUSTOM_EYES_UI
+    bool "enable custom eyes ui for otto robot"
+    default y
+    select ENABLE_COMP_AI_DISPLAY
+    select ENABLE_AI_CHAT_CUSTOM_UI
+
+if(ENABLE_APP_CUSTOM_EYES_UI)
+    choice
+        prompt "choose eyes ui size format"
+        default APP_UI_EYES_160_80
+
+        config APP_UI_EYES_160_80
+            bool "160x80"
+        
+        config APP_UI_EYES_160_160
+            bool "160x160"
+
+        config APP_UI_EYES_240_240
+            bool "240x240"
+
+        config APP_UI_EYES_128_128
+            bool "128X128"
+    endchoice
+endif
+
+config APP_NEED_AI_COMPONENTS
+    bool
+    default y
+    select ENABLE_AI_COMPONENTS
+
+endmenu

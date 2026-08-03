@@ -1,0 +1,38 @@
+menu "DshanPi A1 Board Configuration"
+    config CHIP_CHOICE
+        string
+        default "DshanPi_A1"
+
+    config BOARD_CHOICE
+        string
+        default "DshanPi_A1"
+
+    config BOARD_CONFIG
+        bool
+        default y
+        select ENABLE_QRCODE
+        select ENABLE_AUDIO
+        select ENABLE_BUTTON
+        select ENABLE_AUDIO_AEC
+
+        # Audio codec configuration for DshanPi A1 platform
+    config AUDIO_CODEC_NAME
+        string "Audio codec device name"
+        default "alsa_audio"
+        ---help---
+            Name of the audio codec device. This name is used to identify
+            the audio device when calling tdl_audio_find().
+
+    config ENABLE_KEYBOARD_INPUT
+        bool "Enable keyboard input for DshanPi A1"
+        default y
+        ---help---
+            Enable keyboard input handling for DshanPi A1 platform.
+
+    config BUTTON_NAME
+        string "Keyboard button device value"
+        depends on ENABLE_KEYBOARD_INPUT
+        default "s"
+        ---help---
+            Specify the keyboard button device value for input handling.
+endmenu

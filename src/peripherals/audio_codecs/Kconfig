@@ -1,0 +1,60 @@
+config ENABLE_AUDIO_CODECS
+    bool "enable audio codecs"
+    default n
+
+if (ENABLE_AUDIO_CODECS)
+    config AUDIO_CODECS_NUM
+        int "the num of audio codecs"
+        range 1 1
+        default 1   
+
+    config AUDIO_CODEC_NAME
+        string "the name of audio codec"
+        default "audio_codec"
+
+    config ENABLE_AUDIO_AEC
+        bool "audio support AEC"
+        default n
+
+    config ENABLE_AUDIO_ALSA
+        bool "enable ALSA audio support"
+        default n
+        depends on PLATFORM_LINUX
+        ---help---
+            Enable ALSA (Advanced Linux Sound Architecture) support for audio
+            capture and playback on Ubuntu/Linux platforms. This option is only
+            available when building for Ubuntu platform.
+
+    if ENABLE_AUDIO_ALSA
+        config ALSA_DEVICE_CAPTURE
+            string "ALSA capture device name"
+            default "default"
+            ---help---
+                ALSA device name for audio capture (microphone).
+                Common values: "default", "hw:0,0", "plughw:0,0"
+
+        config ALSA_DEVICE_PLAYBACK
+            string "ALSA playback device name"
+            default "default"
+            ---help---
+                ALSA device name for audio playback (speaker).
+                Common values: "default", "hw:0,0", "plughw:0,0"
+
+        config ALSA_BUFFER_FRAMES
+            int "ALSA buffer size in frames"
+            range 64 8192
+            default 1024
+            ---help---
+                Number of frames in ALSA buffer. Larger values increase
+                latency but reduce CPU usage.
+
+        config ALSA_PERIOD_FRAMES
+            int "ALSA period size in frames"
+            range 32 4096
+            default 256
+            ---help---
+                Number of frames in ALSA period. Should be smaller than
+                buffer size.
+    endif
+
+endif

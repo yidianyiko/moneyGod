@@ -1,0 +1,18 @@
+menu "configure app (duo_eye_mood) "
+
+config APP_CONFIG
+    bool
+    default y
+    select ENABLE_COMP_AI_DISPLAY
+    select ENABLE_AI_CHAT_CUSTOM_UI
+
+config TUYA_PRODUCT_ID
+    string "product ID of project"
+    default "8ixyalzpn0jrun9y"
+
+config APP_NEED_AI_COMPONENTS
+    bool
+    default y
+    select ENABLE_AI_COMPONENTS
+
+endmenu

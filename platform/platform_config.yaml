@@ -1,0 +1,40 @@
+platforms:
+- name: T2
+  repo: https://github.com/tuya/TuyaOpen-T2
+  branch: master
+  commit: c5b546fe39c6cc960dbe9cfdcd044d0d23d5577b
+
+- name: T3
+  repo: https://github.com/tuya/TuyaOpen-T3
+  branch: master
+  commit: 6d63341c50e86dadbfae676df2485b7e77722cb5
+
+- name: LINUX
+  repo: https://github.com/tuya/TuyaOpen-ubuntu
+  branch: platform_ubuntu
+  commit: 6a782b1e3516bbdd6edf17059a20493fd0b51642
+
+- name: T5AI
+  repo: https://github.com/tuya/TuyaOpen-T5AI
+  branch: master
+  commit: 8aa737c8bb2c61a0697a9a1771ab96a0f83f5442
+
+- name: ESP32
+  repo: https://github.com/tuya/TuyaOpen-esp32
+  branch: master
+  commit: e2b4b264b93376d3eafc289d22603685429b0cdd
+
+- name: LN882H
+  repo: https://github.com/tuya/TuyaOpen-ln882h
+  branch: master
+  commit: efdbb9920e7b85224c6d8baef476502226e3e5f1
+
+- name: BK7231X
+  repo: https://github.com/tuya/TuyaOpen-bk7231x
+  branch: master
+  commit: 5cebc077ae0f6feb41eacb70838239a02be6ed2d
+
+- name: GD32
+  repo: https://github.com/tuya/TuyaOpen-GigaDevice
+  branch: master
+  commit: 28d11bb607efd616e36670e83d19f50c3b5da357
