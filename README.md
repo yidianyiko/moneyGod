@@ -10,8 +10,6 @@ AdventureX 2026 黑客松项目 — 一台桌面"财神"装置：摇签 → 抽�
 
 ## 硬件清单 (BOM)
 
-> 数据来源：[飞书多维表格](https://rcnl6ibmu29b.feishu.cn/base/KkrcbWku2auRwoseKf5cktuPn8d?table=tblrvUWltB1d6e97&view=vewesky9a5)。**本清单版本较为粗略，仅供参考。**
-
 > 📝 搜索建议：可直接在淘宝/电商平台搜索以下商品名称。
 
 ### 核心电子模块
