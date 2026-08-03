@@ -12,10 +12,6 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 
-# ---- node ----
-node_modules/
-spectrum/.subscribers.json
-
 # ---- editor/IDE ----
 .qoder/
 .vscode/
