@@ -61,6 +61,28 @@ subtree pulls conflict.
    `.gitmodules` / the path is not a repo root. Upstream calls `Repo(repo_path)` unconditionally,
    which raises `InvalidGitRepositoryError` here and would break `tos.py build`.
 
+### ⚠ Ticket printing is stubbed out — the real driver is missing
+
+`fortune_printer.c` calls `bk_usbh_printer_is_connected()` / `bk_usbh_printer_write()`. **Those two
+functions exist nowhere in this repo, nor in the T5AI platform** — not in any source file, not in any
+prebuilt `.a` (verified with `nm` across the whole platform tree). CherryUSB does ship
+`class/printer/usbh_printer.c`, but it is not listed in `components/bk_usb/CMakeLists.txt` (so it is
+never compiled) and it defines no `bk_usbh_printer_` wrapper.
+
+The working implementation only ever lived in one developer's local `platform/T5AI/` checkout.
+TuyaOpen's own `.gitignore` excludes that directory and `tos.py` re-clones it from Gitee on demand,
+so the code was never committed anywhere and a clean checkout failed at the final link.
+
+`src/fortune_printer_stub.c` restores a buildable tree by defining both symbols as no-ops. Screen,
+TTS, BLE shake remote and networked draw all work; **the thermal ticket does not print** — and the
+customization-WeChat QR only exists on that ticket, so this is a real feature gap, not cosmetic.
+
+To restore printing: land the real implementation under `apps/cyber_fortune/` (tracked territory —
+do **not** put it back in `platform/`, it will be wiped) and define `FORTUNE_HAVE_USB_PRINTER`, which
+compiles the stub away. The stub deliberately avoids `__attribute__((weak))`: a weak definition in
+`libtuyaapp.a` would satisfy the reference during the archive scan and stop the linker from pulling
+the strong definition out of a platform library, leaving printing silently dead.
+
 ## Commands
 
 All commands run from `core-engine/` using the project's venv (already provisioned):
