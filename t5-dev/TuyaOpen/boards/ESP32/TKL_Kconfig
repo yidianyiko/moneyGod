@@ -1,0 +1,81 @@
+config ENABLE_WIFI
+    bool
+    default y
+
+config ENABLE_BLUETOOTH
+    bool
+    select ENABLE_BT_SERVICE
+    select ENABLE_NIMBLE
+    default y
+
+config ENABLE_ADC
+    bool
+    default y
+
+config ENABLE_GPIO
+    bool
+    default y
+
+config ENABLE_UART
+    bool
+    default y
+
+config ENABLE_PWM
+    bool
+    default y
+
+config ENABLE_I2C
+    bool
+    default y
+
+config ENABLE_I2S
+    bool
+    default y
+
+config ENABLE_SPI
+    bool
+    default y
+
+config ENABLE_TIMER
+    bool
+    default y
+
+config ENABLE_WATCHDOG
+    bool
+    default y
+
+config ENABLE_AUDIO
+    bool
+    default n
+
+config ENABLE_VIDEO
+    bool
+    default n
+
+config ENABLE_EXT_RAM
+    bool
+    default n
+
+config ENABLE_DMA2D
+    bool
+    default n
+    ---help---
+        2D-DMA / pixel-processing hardware acceleration (tkl_dma2d).
+        Backed by the PPA on ESP32-P4; has no effect on other ESP32 targets.
+
+config ENABLE_ESP_DISPLAY
+    bool
+    default n
+    
+if (ENABLE_ESP_DISPLAY)
+    config DISPLAY_NAME
+        string "the name of display 1"
+        default "display"
+endif
+
+config LITTLE_END
+    int
+    default 1
+    ---help---
+        0       /* big endian */
+        1       /* little endian */

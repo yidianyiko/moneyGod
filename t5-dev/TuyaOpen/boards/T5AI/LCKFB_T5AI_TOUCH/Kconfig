@@ -1,0 +1,56 @@
+config CHIP_CHOICE
+    string
+    default "T5AI"
+
+config BOARD_CHOICE
+    string
+    default "LCKFB_T5AI_TOUCH"
+
+config BOARD_CONFIG
+    bool
+    default y
+    select ENABLE_AUDIO_CODECS
+    # No MIC2 speaker loopback on this board — keep hardware AEC off
+    select ENABLE_BUTTON
+    select ENABLE_DISPLAY
+    select ENABLE_TP
+    select ENABLE_PWM
+
+choice LCKFB_T5AI_TOUCH_LCD
+    prompt "LCD panel for LCKFB_T5AI_TOUCH"
+    default LCKFB_T5AI_TOUCH_LCD_ST7789_240X320
+
+    config LCKFB_T5AI_TOUCH_LCD_ST7789_240X320
+        bool "ST7789 240x320 SPI TFT + FT6336 touch"
+
+    config LCKFB_T5AI_TOUCH_LCD_NONE
+        bool "none"
+endchoice
+
+config LCKFB_T5AI_TOUCH_CAMERA
+    bool "GC0308 DVP camera module"
+    default n
+    select ENABLE_CAMERA
+
+config LCKFB_T5AI_TOUCH_SDIO
+    bool "TF card (SDIO)"
+    default n
+
+config LCKFB_T5AI_TOUCH_SC7A20
+    bool "SC7A20 6-axis IMU sensor (I2C)"
+    default n
+    select ENABLE_IMU
+    select ENABLE_IMU_SC7A20
+    help
+      Enable SC7A20 accelerometer sensor on I2C1 bus.
+      SCL=P42, SDA=P43, INT1=P44.
+
+# This board only breaks out a single UART, wired to the T5 bootROM download pins
+# (UART0). The platform defaults the log to UART1, which is not accessible here, so
+# route the CP-core print (all platform + TuyaOpen logs) to UART0 to share log and
+# flash on the one port. The T5AI build_example.py reads this and overrides the CP
+# CONFIG_UART_PRINT_PORT; boards that do not define it keep the UART1 default.
+config BOARD_LOG_UART_PORT
+    int
+    default 0
+    

@@ -1,0 +1,20 @@
+menu "configure app (your_robot_dog) "
+
+config TUYA_PRODUCT_ID
+    string "product ID of project"
+    default "y0k6ydkxphvv5g7acd"
+
+config ENABLE_BATTERY
+    bool "enable the battery module"
+    default n
+
+config APP_NEED_AI_COMPONENTS
+    bool
+    default y
+    select ENABLE_AI_COMPONENTS
+
+config ENABLE_DOG_ACTION
+    bool "enable the dog action"
+    default y
+
+endmenu

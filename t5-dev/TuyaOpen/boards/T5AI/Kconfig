@@ -1,0 +1,135 @@
+# Ktuyaconf
+config PLATFORM_CHOICE
+    string
+    default "T5AI"
+
+config PLATFORM_T5
+    bool
+    default y
+
+config ENABLE_BIG_CORE
+    bool
+    default y
+
+config OPERATING_SYSTEM
+    int
+    default 98
+    ---help---
+        100     /* LINUX */
+        98      /* RTOS */
+
+rsource "./TKL_Kconfig"
+
+rsource "./OS_SERVICE_Kconfig"
+
+choice
+    prompt "Choice a board"
+
+    config BOARD_CHOICE_SPARKLEIOT_T5AI_DEV
+        bool "SPARKLEIOT_T5AI_DEV"
+        if (BOARD_CHOICE_SPARKLEIOT_T5AI_DEV)
+            rsource "./SPARKLEIOT_T5AI_DEV/Kconfig"
+        endif
+    config BOARD_CHOICE_TUYA_T5AI_BOARD
+        bool "TUYA_T5AI_BOARD"
+        if (BOARD_CHOICE_TUYA_T5AI_BOARD)
+            rsource "./TUYA_T5AI_BOARD/Kconfig"
+        endif
+
+    config BOARD_CHOICE_TUYA_T5AI_EVB
+        bool "TUYA_T5AI_EVB"
+        if (BOARD_CHOICE_TUYA_T5AI_EVB)
+            rsource "./TUYA_T5AI_EVB/Kconfig"
+        endif
+
+    config BOARD_CHOICE_TUYA_T5AI_CORE
+        bool "TUYA_T5AI_CORE"
+        if (BOARD_CHOICE_TUYA_T5AI_CORE)
+            rsource "./TUYA_T5AI_CORE/Kconfig"
+        endif
+
+    config BOARD_CHOICE_T5AI_MINI
+        bool "T5AI_MINI"
+        if (BOARD_CHOICE_T5AI_MINI)
+            rsource "./T5AI_MINI/Kconfig"
+        endif
+
+    config BOARD_CHOICE_T5AI_MOJI_1_28
+        bool "T5AI_MOJI_1_28"
+        if (BOARD_CHOICE_T5AI_MOJI_1_28)
+            rsource "./T5AI_MOJI_1_28/Kconfig"
+        endif
+
+    config BOARD_CHOICE_TUYA_T5AI_POCKET
+        bool "TUYA_T5AI_POCKET"
+        if (BOARD_CHOICE_TUYA_T5AI_POCKET)
+            rsource "./TUYA_T5AI_POCKET/Kconfig"
+        endif
+
+
+    config BOARD_CHOICE_ATK_T5AI_MINI_BOARD
+        bool "ATK_T5AI_MINI_BOARD"
+        if (BOARD_CHOICE_ATK_T5AI_MINI_BOARD)
+            rsource "./ATK_T5AI_MINI_BOARD/Kconfig"
+        endif
+
+
+    config BOARD_CHOICE_WAVESHARE_T5AI_TOUCH_AMOLED_1_75
+        bool "WAVESHARE_T5AI_TOUCH_AMOLED_1_75"
+        if (BOARD_CHOICE_WAVESHARE_T5AI_TOUCH_AMOLED_1_75)
+            rsource "./WAVESHARE_T5AI_TOUCH_AMOLED_1_75/Kconfig"
+        endif
+
+    config BOARD_CHOICE_T5AI_OTTO
+        bool "T5AI_OTTO"
+        if (BOARD_CHOICE_T5AI_OTTO)
+            rsource "./T5AI_OTTO/Kconfig"
+        endif
+
+    config BOARD_CHOICE_TUYA_T5AI_PIXEL
+        bool "TUYA_T5AI_PIXEL"
+        if (BOARD_CHOICE_TUYA_T5AI_PIXEL)
+            rsource "./TUYA_T5AI_PIXEL/Kconfig"
+        endif
+
+    config BOARD_CHOICE_TUYA_T5AI_DESKTOP_ROBOT
+        bool "TUYA_T5AI_DESKTOP_ROBOT"
+        if (BOARD_CHOICE_TUYA_T5AI_DESKTOP_ROBOT)
+            rsource "./TUYA_T5AI_DESKTOP_ROBOT/Kconfig"
+        endif
+
+    config BOARD_CHOICE_TUYA_T5AI_DOG
+        bool "TUYA_T5AI_DOG"
+        if (BOARD_CHOICE_TUYA_T5AI_DOG)
+            rsource "./TUYA_T5AI_DOG/Kconfig"
+        endif
+
+
+    config BOARD_CHOICE_TUYA_T5AI_EINK_NFC
+        bool "TUYA_T5AI_EINK_NFC"
+        if (BOARD_CHOICE_TUYA_T5AI_EINK_NFC)
+            rsource "./TUYA_T5AI_EINK_NFC/Kconfig"
+        endif
+
+    config BOARD_CHOICE_T5AI_MODULE
+        bool "T5AI_MODULE"
+        if (BOARD_CHOICE_T5AI_MODULE)
+            rsource "./T5AI_MODULE/Kconfig"
+        endif
+
+    config BOARD_CHOICE_LCKFB_T5AI_TOUCH
+        bool "LCKFB_T5AI_TOUCH"
+        if (BOARD_CHOICE_LCKFB_T5AI_TOUCH)
+            rsource "./LCKFB_T5AI_TOUCH/Kconfig"
+        endif
+
+
+    config BOARD_CHOICE_ZECTRIX_T5AI_NOTE_4
+        bool "ZECTRIX_T5AI_NOTE_4"
+        if (BOARD_CHOICE_ZECTRIX_T5AI_NOTE_4)
+            rsource "./ZECTRIX_T5AI_NOTE_4/Kconfig"
+        endif
+
+# <new-board-add: This line cannot be deleted or modified>
+
+endchoice

@@ -1,0 +1,103 @@
+menu "Raspberry Pi Board Configuration"
+    config CHIP_CHOICE
+        string
+        default "Raspberry_Pi"
+
+    config BOARD_CHOICE
+        string
+        default "Raspberry_Pi"
+
+    config BOARD_CONFIG
+        bool
+        default y
+        select ENABLE_QRCODE
+        select ENABLE_AUDIO
+        select ENABLE_BUTTON
+
+    choice RASPBERRY_PI_MODEL
+        prompt "Choose Raspberry Pi model"
+        default RASPBERRY_PI_4
+        help
+            Select the Raspberry Pi model you are using.
+
+        config RASPBERRY_PI_4
+            bool "Raspberry Pi 4B"
+            help
+                Raspberry Pi 4 Model B with BCM2711 (ARMv8)
+
+        config RASPBERRY_PI_5
+            bool "Raspberry Pi 5"
+            help
+                Raspberry Pi 5 with BCM2712 (ARMv8)
+    endchoice
+
+    # Audio codec configuration for Raspberry Pi platform
+    config AUDIO_CODEC_NAME
+        string "Audio codec device name"
+        default "alsa_audio"
+        ---help---
+            Name of the audio codec device. This name is used to identify
+            the audio device when calling tdl_audio_find().
+
+    config ENABLE_KEYBOARD_INPUT
+        bool "Enable keyboard input for Raspberry Pi"
+        default y
+        ---help---
+            Enable keyboard input handling for Raspberry Pi platform.
+
+    config BUTTON_NAME
+        string "Keyboard button device value"
+        depends on ENABLE_KEYBOARD_INPUT
+        default "s"
+        ---help---
+            Specify the keyboard button device value for input handling.
+
+    config ENABLE_CAMERA
+        bool "Enable Camera"
+        default n
+
+    if (ENABLE_CAMERA)
+        config ENABLE_CAMERA_V4L2
+            bool "Enable V4L2 USB camera"
+            default y
+
+        config CAMERA_V4L2_DEVNODE
+            string "V4L2 device node"
+            depends on ENABLE_CAMERA_V4L2
+            default "/dev/video0"
+    endif            
+
+    config ENABLE_SDL_DISPLAY
+        bool "Enable SDL2 desktop window for display"
+        depends on ENABLE_DISPLAY
+        default y
+        ---help---
+            Enable a simple SDL2 window as the display device.
+            This is useful on Raspberry Pi Desktop to show LVGL UI in a small window.
+
+    config ENABLE_SDL_TP
+        bool "Enable SDL virtual touchpad (mouse drag/wheel)"
+        depends on ENABLE_SDL_DISPLAY
+        select ENABLE_TP
+        select ENABLE_LVGL_TP
+        default y
+        ---help---
+            Enable a virtual touchpad on Raspberry Pi Desktop.
+            - Mouse left-button drag: press/move/release as single-touch
+            - Mouse wheel: generates a short swipe gesture for vertical scrolling
+
+    config SDL_DISPLAY_WIDTH
+        int "SDL window width"
+        depends on ENABLE_SDL_DISPLAY
+        default 480
+
+    config SDL_DISPLAY_HEIGHT
+        int "SDL window height"
+        depends on ENABLE_SDL_DISPLAY
+        default 480
+
+    config SDL_DISPLAY_TITLE
+        string "SDL window title"
+        depends on ENABLE_SDL_DISPLAY
+        default "TuyaOpen - your_chat_bot"
+endmenu
