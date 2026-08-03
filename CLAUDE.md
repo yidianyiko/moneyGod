@@ -31,6 +31,7 @@ Everything is in this one repo:
 | `t5-dev/TuyaOpen/` | T5AI firmware — a vendored fork of `tuya/TuyaOpen` (see below) |
 | `t5-dev/` | board build/flash/monitor scripts, hardware notes, font & GIF tooling |
 | `stick-dev/` | StickS3 shake-remote firmware (PlatformIO) |
+| `hardware/3d-models/` | enclosure STLs (13 parts) + a prebuilt zip for one-click download |
 | `assets/`, `scene_change_gifs/`, `赛博财神庙_原创签谱.json` | pixel art, animations, the original lot poems |
 
 Firmware ↔ backend coupling is the four `/api/fortune/*` HTTP routes and nothing else.
