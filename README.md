@@ -12,6 +12,9 @@ AdventureX 2026 黑客松项目 — 一台桌面"财神"装置：摇签 → 抽�
   <img src="assets/photos/moneygod_product_1.jpg" width="45%" />
   <img src="assets/photos/moneygod_product_2.jpg" width="45%" />
 </p>
+<p align="center">
+  <img src="assets/photos/moneygod_product_3.jpg" width="45%" />
+</p>
 
 ---
 
