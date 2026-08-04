@@ -8,7 +8,7 @@ AdventureX 2026 黑客松项目 — 一台桌面"财神"装置：摇签 → 抽�
 
 ## 成品展示
 
-<table> <tr> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_1.jpg" width="100%" /> </td> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_2.jpg" width="100%" /> </td> </tr> <tr> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_4.jpg" width="100%" /> </td> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_5.jpg" width="100%" /> </td> </tr> </table> <p align="center"> <img src="assets/photos/moneygod_product_3.jpg" width="50%" /> </p>
+<table> <tr> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_1.jpg" width="100%" /> </td> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_2.jpg" width="100%" /> </td> </tr> <tr> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_4.JPG" width="100%" /> </td> <td align="center" valign="top" width="50%"> <img src="assets/photos/moneygod_product_5.JPG" width="100%" /> </td> </tr> </table> <p align="center"> <img src="assets/photos/moneygod_product_3.jpg" width="50%" /> </p>
 
 ---
 
